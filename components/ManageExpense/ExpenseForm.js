@@ -1,13 +1,27 @@
 import { StyleSheet, Text, View } from "react-native";
 import Input from "./Input";
 import { useState } from "react";
+import Button from "../UI/Button";
 
-function ExpenseForm() {
-    const [amountValue, setAmountValue] = useState('');
+function ExpenseForm({onCancel, onSubmit, submitButtonLabel}) {
+    const [inputValues, setInputValues] = useState({
+        amount: '',
+        date: '',
+        description: ''
+    });
 
 
-    function amountChangedHandler(enteredText) {
-        setAmountValue(enteredText);
+    function inputChangedHandler(inputIdentifier, enteredValue) {
+        setInputValues((currentInputValues) => {
+            return {
+                ...currentInputValues,
+                [inputIdentifier]: enteredValue
+            }
+        });
+    }
+
+    function submitHandler() {
+
     }
 
     return <View style={styles.form}>
@@ -15,18 +29,23 @@ function ExpenseForm() {
         <View style={styles.inputsRow}>
             <Input label="Amount"  style={styles.rowInput} textInputConfig={{
                 keyboardType: 'decimal-pad',
-                onChangeText: amountChangedHandler,
-                value: amountValue
+                onChangeText: inputChangedHandler.bind(this, 'amount'),
+                value: inputValues.amount
             }}/>
             <Input label="Date" style={styles.rowInput} textInputConfig={{
                 placeholder: 'YYYY-MM-DD',
                 maxLength: 10,
-                onChangeText: () => {}
+                onChangeText: inputChangedHandler.bind(this, 'date')
             }}/>
         </View>
         <Input label="Description" textInputConfig={{
-            multiline: true
-        }}/>
+            multiline: true,
+            onChangeText: inputChangedHandler.bind(this, 'description') 
+        }} />
+         <View style={styles.buttons}>
+            <Button style={styles.button} mode="flat" onPress={onCancel}>Cancel</Button>
+            <Button style={styles.button} onPress={submitHandler}>{submitButtonLabel}</Button>
+        </View>
     </View>;
 }
 
@@ -49,5 +68,14 @@ const styles = StyleSheet.create({
     },
     rowInput: {
         flex: 1
-    }
+    },
+     buttons: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    button: {
+        minWidth: 120,
+        marginHorizontal: 8
+    },
 });

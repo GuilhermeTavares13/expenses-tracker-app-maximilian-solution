@@ -2,12 +2,13 @@ import { StyleSheet, Text, View } from "react-native";
 import Input from "./Input";
 import { useState } from "react";
 import Button from "../UI/Button";
+import { getFormattedDate } from "../../util/date";
 
-function ExpenseForm({onCancel, onSubmit, submitButtonLabel}) {
+function ExpenseForm({onCancel, onSubmit, submitButtonLabel, defaultValues}) {
     const [inputValues, setInputValues] = useState({
-        amount: '',
-        date: '',
-        description: ''
+        amount: defaultValues ? defaultValues.amount.toString() : '',
+        date: defaultValues ? getFormattedDate(defaultValues.date) : '',
+        description: defaultValues ? defaultValues.description : ''
     });
 
 
@@ -21,7 +22,16 @@ function ExpenseForm({onCancel, onSubmit, submitButtonLabel}) {
     }
 
     function submitHandler() {
+        const expenseData = {
+            amount: +inputValues.amount,
+            date: new Date(inputValues.date),
+            description: inputValues.description
+        };
 
+        const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
+        const dateIsValid = expenseData.date.toString() === 'Invalid Date';
+
+        onSubmit(expenseData);
     }
 
     return <View style={styles.form}>
@@ -35,12 +45,14 @@ function ExpenseForm({onCancel, onSubmit, submitButtonLabel}) {
             <Input label="Date" style={styles.rowInput} textInputConfig={{
                 placeholder: 'YYYY-MM-DD',
                 maxLength: 10,
-                onChangeText: inputChangedHandler.bind(this, 'date')
+                onChangeText: inputChangedHandler.bind(this, 'date'),
+                value: inputValues.date
             }}/>
         </View>
         <Input label="Description" textInputConfig={{
             multiline: true,
-            onChangeText: inputChangedHandler.bind(this, 'description') 
+            onChangeText: inputChangedHandler.bind(this, 'description'), 
+            value: inputValues.description
         }} />
          <View style={styles.buttons}>
             <Button style={styles.button} mode="flat" onPress={onCancel}>Cancel</Button>
